@@ -12,6 +12,9 @@ const createMockLib = () =>
 			fromDegrees: vi.fn((lng: number, lat: number) => ({ lng, lat })),
 			fromDegreesArray: vi.fn((coordinates: number[]) => coordinates)
 		}),
+		CallbackProperty: vi.fn(function (this: void, callback: () => unknown, isConstant: boolean) {
+			return { callback, isConstant, getValue: () => callback() };
+		}),
 		Cartographic: {
 			fromCartesian: vi.fn(() => ({ longitude: 0.1, latitude: 0.2 }))
 		},
@@ -439,19 +442,391 @@ describe('TerraDrawCesiumAdapter', () => {
 			expect(calls[2]![0].polyline).toBeDefined();
 		});
 
-		it('removes and recreates entities for updated features', () => {
+		const lineStringFeature = (coordinates: number[][], id = 'f-1') =>
+			createTestFeature({ type: 'LineString', coordinates }, id);
+
+		const lastEntity = (viewer: Viewer, index = 0) =>
+			(viewer.entities.add as ReturnType<typeof vi.fn>).mock.results[index]!.value;
+
+		it('reuses the entities of an updated feature and drives them from a callback', () => {
+			const { adapter, viewer, lib } = createAdapter();
+			const feature = lineStringFeature([
+				[0, 0],
+				[1, 1]
+			]);
+			adapter.render(
+				{ created: [feature], updated: [], unchanged: [], deletedIds: [] },
+				MockStyling() as never
+			);
+			const entity = lastEntity(viewer);
+
+			adapter.render(
+				{
+					created: [],
+					updated: [
+						lineStringFeature([
+							[0, 0],
+							[2, 2]
+						])
+					],
+					unchanged: [],
+					deletedIds: []
+				},
+				MockStyling() as never
+			);
+
+			expect(viewer.entities.remove).not.toHaveBeenCalled();
+			expect(viewer.entities.add).toHaveBeenCalledTimes(1);
+			// A non constant callback puts the entity on Cesium's dynamic path, where
+			// ground geometry is built synchronously and so is visible whilst drawing
+			expect(lib.CallbackProperty).toHaveBeenCalledWith(expect.any(Function), false);
+			expect(entity.polyline.positions.getValue()).toEqual([0, 0, 2, 2]);
+		});
+
+		it('keeps following the feature on subsequent updates', () => {
 			const { adapter, viewer } = createAdapter();
+			adapter.render(
+				{
+					created: [
+						lineStringFeature([
+							[0, 0],
+							[1, 1]
+						])
+					],
+					updated: [],
+					unchanged: [],
+					deletedIds: []
+				},
+				MockStyling() as never
+			);
+			const entity = lastEntity(viewer);
+
+			for (const end of [2, 3, 4]) {
+				adapter.render(
+					{
+						created: [],
+						updated: [
+							lineStringFeature([
+								[0, 0],
+								[end, end]
+							])
+						],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+			}
+
+			expect(viewer.entities.add).toHaveBeenCalledTimes(1);
+			expect(viewer.entities.remove).not.toHaveBeenCalled();
+			expect(entity.polyline.positions.getValue()).toEqual([0, 0, 4, 4]);
+		});
+
+		it('returns a feature to static geometry once it stops changing', () => {
+			vi.useFakeTimers();
+			try {
+				const { adapter, viewer } = createAdapter();
+				adapter.render(
+					{
+						created: [
+							lineStringFeature([
+								[0, 0],
+								[1, 1]
+							])
+						],
+						updated: [],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+				const entity = lastEntity(viewer);
+				adapter.render(
+					{
+						created: [],
+						updated: [
+							lineStringFeature([
+								[0, 0],
+								[2, 2]
+							])
+						],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+				expect(entity.polyline.positions.getValue).toBeDefined();
+
+				vi.advanceTimersByTime(500);
+
+				// The entity is recreated with constant positions, because Cesium does not
+				// reliably rebuild a ground primitive when a callback is swapped for a value
+				expect(viewer.entities.remove).toHaveBeenCalledWith(entity);
+				expect(viewer.entities.add).toHaveBeenCalledTimes(2);
+				expect(lastEntity(viewer, 1).polyline.positions).toEqual([0, 0, 2, 2]);
+
+				// It is only demoted once
+				vi.advanceTimersByTime(500);
+				expect(viewer.entities.add).toHaveBeenCalledTimes(2);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		it('keeps a feature dynamic across renders that do not mention it', () => {
+			vi.useFakeTimers();
+			try {
+				const { adapter, viewer } = createAdapter();
+				adapter.render(
+					{
+						created: [
+							lineStringFeature([
+								[0, 0],
+								[1, 1]
+							])
+						],
+						updated: [],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+				const entity = lastEntity(viewer);
+
+				// Terra Draw spreads one interaction over several calls: dragging a
+				// coordinate updates the point and the geometry it belongs to through
+				// separate store events, and a styling change arrives as an empty
+				// changeset. None of those mean the feature has stopped changing.
+				for (const end of [2, 3, 4]) {
+					adapter.render(
+						{
+							created: [],
+							updated: [
+								lineStringFeature([
+									[0, 0],
+									[end, end]
+								])
+							],
+							unchanged: [],
+							deletedIds: []
+						},
+						MockStyling() as never
+					);
+					vi.advanceTimersByTime(50);
+					adapter.render(
+						{ created: [], updated: [], unchanged: [], deletedIds: [] },
+						MockStyling() as never
+					);
+					vi.advanceTimersByTime(50);
+					adapter.render(
+						{
+							created: [createTestFeature({ type: 'Point', coordinates: [1, 1] }, 'point-1')],
+							updated: [],
+							unchanged: [],
+							deletedIds: ['point-1']
+						},
+						MockStyling() as never
+					);
+					vi.advanceTimersByTime(50);
+				}
+
+				// The line entity is never recreated: only the three points are added
+				// on top of it
+				expect(viewer.entities.add).toHaveBeenCalledTimes(4);
+				expect(entity.polyline.positions.getValue()).toEqual([0, 0, 4, 4]);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		it('requests a render when a feature is demoted in request render mode', () => {
+			vi.useFakeTimers();
+			try {
+				const viewer = createMockViewer();
+				(viewer.scene as unknown as { requestRenderMode: boolean }).requestRenderMode = true;
+				const { adapter } = createAdapter({ viewer });
+				adapter.render(
+					{
+						created: [
+							lineStringFeature([
+								[0, 0],
+								[1, 1]
+							])
+						],
+						updated: [],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+				adapter.render(
+					{
+						created: [],
+						updated: [
+							lineStringFeature([
+								[0, 0],
+								[2, 2]
+							])
+						],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+				const before = (viewer.scene.requestRender as ReturnType<typeof vi.fn>).mock.calls.length;
+
+				vi.advanceTimersByTime(500);
+
+				expect(viewer.scene.requestRender).toHaveBeenCalledTimes(before + 1);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		it('does not demote after the adapter has been cleared or unregistered', () => {
+			vi.useFakeTimers();
+			try {
+				const { adapter, viewer } = createAdapter();
+				adapter.register(MockCallbacks());
+				adapter.render(
+					{
+						created: [
+							lineStringFeature([
+								[0, 0],
+								[1, 1]
+							])
+						],
+						updated: [],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+				adapter.render(
+					{
+						created: [],
+						updated: [
+							lineStringFeature([
+								[0, 0],
+								[2, 2]
+							])
+						],
+						unchanged: [],
+						deletedIds: []
+					},
+					MockStyling() as never
+				);
+
+				adapter.clear();
+				const addCalls = (viewer.entities.add as ReturnType<typeof vi.fn>).mock.calls.length;
+				adapter.unregister();
+
+				vi.advanceTimersByTime(500);
+
+				expect(viewer.entities.add).toHaveBeenCalledTimes(addCalls);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		it('updates a Point feature in place without recreating it', () => {
+			const { adapter, viewer, lib } = createAdapter();
 			const feature = createTestFeature({ type: 'Point', coordinates: [135, 35] });
 			adapter.render(
 				{ created: [feature], updated: [], unchanged: [], deletedIds: [] },
 				MockStyling() as never
 			);
+			const entity = lastEntity(viewer);
+
 			adapter.render(
-				{ created: [], updated: [feature], unchanged: [], deletedIds: [] },
+				{
+					created: [],
+					updated: [createTestFeature({ type: 'Point', coordinates: [136, 36] })],
+					unchanged: [],
+					deletedIds: []
+				},
 				MockStyling() as never
 			);
+
+			expect(viewer.entities.remove).not.toHaveBeenCalled();
+			expect(viewer.entities.add).toHaveBeenCalledTimes(1);
+			// Points render through Cesium's synchronous collections, so they are set
+			// directly rather than through a callback
+			expect(lib.CallbackProperty).not.toHaveBeenCalled();
+			expect(entity.position).toEqual({ lng: 136, lat: 36 });
+		});
+
+		it('recreates the entities when the geometry type changes', () => {
+			const { adapter, viewer } = createAdapter();
+			adapter.render(
+				{
+					created: [createTestFeature({ type: 'Point', coordinates: [135, 35] })],
+					updated: [],
+					unchanged: [],
+					deletedIds: []
+				},
+				MockStyling() as never
+			);
+
+			adapter.render(
+				{
+					created: [],
+					updated: [
+						lineStringFeature([
+							[0, 0],
+							[1, 1]
+						])
+					],
+					unchanged: [],
+					deletedIds: []
+				},
+				MockStyling() as never
+			);
+
 			expect(viewer.entities.remove).toHaveBeenCalledTimes(1);
 			expect(viewer.entities.add).toHaveBeenCalledTimes(2);
+		});
+
+		it('recreates the entities when a polygon gains a ring', () => {
+			const { adapter, viewer } = createAdapter();
+			const outerRing = [
+				[0, 0],
+				[0, 1],
+				[1, 1],
+				[0, 0]
+			];
+			const hole = [
+				[0.2, 0.2],
+				[0.2, 0.4],
+				[0.4, 0.4],
+				[0.2, 0.2]
+			];
+			adapter.render(
+				{
+					created: [createTestFeature({ type: 'Polygon', coordinates: [outerRing] })],
+					updated: [],
+					unchanged: [],
+					deletedIds: []
+				},
+				MockStyling() as never
+			);
+			// polygon + 1 outline polyline
+			expect(viewer.entities.add).toHaveBeenCalledTimes(2);
+
+			adapter.render(
+				{
+					created: [],
+					updated: [createTestFeature({ type: 'Polygon', coordinates: [outerRing, hole] })],
+					unchanged: [],
+					deletedIds: []
+				},
+				MockStyling() as never
+			);
+
+			expect(viewer.entities.remove).toHaveBeenCalledTimes(2);
+			// polygon + 2 outline polylines
+			expect(viewer.entities.add).toHaveBeenCalledTimes(5);
 		});
 
 		it('removes all entities for deleted features', () => {
