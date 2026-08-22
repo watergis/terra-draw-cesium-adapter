@@ -2,20 +2,16 @@
 	"name": "@watergis/terra-draw-cesium-adapter",
 	"version": "0.0.0",
 	"description": "Terra Draw Adapter for CesiumJS",
+	"source": "src/terra-draw-cesium-adapter.ts",
 	"type": "module",
-	"main": "./dist/terra-draw-cesium-adapter.cjs",
-	"module": "./dist/terra-draw-cesium-adapter.js",
+	"main": "./dist/terra-draw-cesium-adapter.module.js",
+	"module": "./dist/terra-draw-cesium-adapter.module.js",
+	"unpkg": "./dist/terra-draw-cesium-adapter.umd.js",
 	"types": "./dist/terra-draw-cesium-adapter.d.ts",
 	"exports": {
 		".": {
-			"import": {
-				"types": "./dist/terra-draw-cesium-adapter.d.ts",
-				"default": "./dist/terra-draw-cesium-adapter.js"
-			},
-			"require": {
-				"types": "./dist/terra-draw-cesium-adapter.d.cts",
-				"default": "./dist/terra-draw-cesium-adapter.cjs"
-			}
+			"types": "./dist/terra-draw-cesium-adapter.d.ts",
+			"default": "./dist/terra-draw-cesium-adapter.modern.js"
 		}
 	},
 	"files": [
@@ -23,7 +19,10 @@
 	],
 	"sideEffects": false,
 	"scripts": {
-		"build": "tsup",
+		"build": "pnpm build:js && pnpm build:modern && pnpm build:types",
+		"build:js": "vite build",
+		"build:modern": "vite build --mode modern",
+		"build:types": "tsc -p tsconfig.build.json",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run",
 		"test:watch": "vitest",
@@ -38,8 +37,8 @@
 		"cesium": "^1.144.0",
 		"jsdom": "^28.0.0",
 		"terra-draw": "^1.32.3",
-		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",
+		"vite": "^8.2.2",
 		"vitest": "^4.1.11"
 	},
 	"publishConfig": {

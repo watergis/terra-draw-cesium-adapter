@@ -8,6 +8,8 @@ A [Terra Draw](https://github.com/JamesLMilner/terra-draw) adapter for [CesiumJS
 npm install @watergis/terra-draw-cesium-adapter terra-draw cesium
 ```
 
+This package is **ESM only**. It ships no CommonJS build, so a CJS codebase has to reach it through a dynamic `await import()`. A `<script>`-tag build is available separately — see [Using from a `<script>` tag](#using-from-a-script-tag).
+
 `terra-draw` and `cesium` are peer dependencies. Cesium `1.121.0` or later is required, since that release renamed `SceneTransforms.wgs84ToWindowCoordinates` to `worldToWindowCoordinates`.
 
 ## Usage
@@ -31,6 +33,30 @@ const draw = new TerraDraw({
 
 draw.start();
 draw.setMode('polygon');
+```
+
+### Using from a `<script>` tag
+
+The package also ships a UMD bundle, so it can be loaded straight from a CDN alongside Cesium and Terra Draw. The adapter is exposed as `terraDrawCesiumAdapter`.
+
+```html
+<script src="https://unpkg.com/cesium/Build/Cesium/Cesium.js"></script>
+<script src="https://unpkg.com/terra-draw"></script>
+<script src="https://unpkg.com/@watergis/terra-draw-cesium-adapter"></script>
+<script>
+	const viewer = new Cesium.Viewer('cesiumContainer');
+
+	const draw = new terraDraw.TerraDraw({
+		adapter: new terraDrawCesiumAdapter.TerraDrawCesiumAdapter({
+			map: viewer,
+			lib: Cesium
+		}),
+		modes: [new terraDraw.TerraDrawPointMode(), new terraDraw.TerraDrawPolygonMode()]
+	});
+
+	draw.start();
+	draw.setMode('polygon');
+</script>
 ```
 
 ### Options
