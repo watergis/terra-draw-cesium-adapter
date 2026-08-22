@@ -1,0 +1,65 @@
+{
+	"name": "@watergis/terra-draw-cesium-adapter",
+	"version": "0.0.0",
+	"description": "Terra Draw Adapter for CesiumJS",
+	"type": "module",
+	"main": "./dist/terra-draw-cesium-adapter.cjs",
+	"module": "./dist/terra-draw-cesium-adapter.js",
+	"types": "./dist/terra-draw-cesium-adapter.d.ts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/terra-draw-cesium-adapter.d.ts",
+				"default": "./dist/terra-draw-cesium-adapter.js"
+			},
+			"require": {
+				"types": "./dist/terra-draw-cesium-adapter.d.cts",
+				"default": "./dist/terra-draw-cesium-adapter.cjs"
+			}
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"sideEffects": false,
+	"scripts": {
+		"build": "tsup",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
+	},
+	"peerDependencies": {
+		"cesium": ">=1.121.0",
+		"terra-draw": "^1.0.0"
+	},
+	"devDependencies": {
+		"@vitest/coverage-v8": "^4.1.11",
+		"cesium": "^1.144.0",
+		"jsdom": "^28.0.0",
+		"terra-draw": "^1.32.3",
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.11"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"author": "Jin Igarashi",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/watergis/terra-draw-cesium-adapter.git",
+		"directory": "packages/terra-draw-cesium-adapter"
+	},
+	"keywords": [
+		"map",
+		"drawing",
+		"draw",
+		"map drawing",
+		"geometry",
+		"cesium",
+		"cesiumjs",
+		"terra-draw"
+	]
+}

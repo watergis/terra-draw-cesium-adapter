@@ -1,0 +1,9 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"verbatimModuleSyntax": false,
+		"noEmit": true,
+		"noUncheckedIndexedAccess": false
+	},
+	"include": ["src", ".storybook", "vitest.config.ts"]
+}
