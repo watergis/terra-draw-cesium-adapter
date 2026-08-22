@@ -9,7 +9,8 @@ export default tseslint.config(
 			'**/node_modules/**',
 			'**/storybook-static/**',
 			'**/coverage/**',
-			'**/.storybook-vitest/**'
+			'**/.storybook-vitest/**',
+			'**/.wrangler/**'
 		]
 	},
 	js.configs.recommended,
