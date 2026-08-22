@@ -56,6 +56,7 @@ Everything is clamped to the ground, which keeps drawn geometry draped over imag
 ## Known differences from other adapters
 
 - `setDoubleClickToZoom` is effectively a no-op. Cesium has no double-click-to-zoom behaviour; what it does have is a default left-double-click handler that tracks the picked entity, which conflicts with double-click-to-finish drawing. The adapter removes that handler when it is constructed and cannot restore it.
+- Keyboard interactions (`Escape` to cancel a drawing, `Delete` to remove a selected feature, the undo/redo shortcuts) require the Cesium canvas to have focus. Cesium calls `preventDefault` on pointer down, which suppresses the browser's default focus behaviour, so the adapter focuses the canvas itself on pointer down. The map therefore has to be clicked once before keyboard shortcuts take effect.
 - `setDraggability` toggles `enableRotate` and `enableTranslate` on the scene's `screenSpaceCameraController`. Zoom and tilt are left alone so the user can still navigate whilst dragging a vertex.
 
 ## License

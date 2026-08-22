@@ -47,7 +47,10 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 		this._lib = config.lib;
 
 		// The base adapter attaches keyboard listeners to the map event element,
-		// which must be focusable for them to fire.
+		// which must be focusable for them to fire. Cesium's ScreenSpaceEventHandler
+		// calls preventDefault on pointer down whenever an input action is registered
+		// (the camera controller always registers some), which suppresses the default
+		// focus behaviour, so register() also focuses the canvas explicitly.
 		this._viewer.canvas.setAttribute('tabindex', '0');
 
 		// Cesium's default left double click behaviour tracks the picked entity,
@@ -61,6 +64,34 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 	private _lib: InjectableCesium;
 	private _featureEntities: Map<FeatureId, CesiumType.Entity[]> = new Map();
 	private _lastCursor: Parameters<SetCursor>[0] | null = null;
+
+	/**
+	 * Focuses the canvas so that Terra Draw's keydown and keyup listeners fire,
+	 * which is what makes Escape to cancel a drawing, Delete to remove a selected
+	 * feature and the undo/redo keyboard shortcuts work
+	 */
+	private _focusCanvasOnPointerDown = (): void => {
+		const canvas = this._viewer.canvas as unknown as HTMLElement;
+		if (document.activeElement === canvas) {
+			return;
+		}
+
+		// Focusing programmatically makes the browser treat the canvas as keyboard
+		// focused and draw a focus ring, which is misleading for what is really a
+		// pointer interaction, so it is suppressed until the canvas is blurred and
+		// a keyboard user can tab back into it
+		const previousOutline = canvas.style.outline;
+		canvas.style.outline = 'none';
+		canvas.addEventListener(
+			'blur',
+			() => {
+				canvas.style.outline = previousOutline;
+			},
+			{ once: true }
+		);
+
+		canvas.focus({ preventScroll: true });
+	};
 
 	/**
 	 * Returns the HTML element that Terra Draw should attach its event listeners to
@@ -161,10 +192,12 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 
 	public override register(callbacks: TerraDrawExtend.TerraDrawCallbacks): void {
 		super.register(callbacks);
+		this._viewer.canvas.addEventListener('pointerdown', this._focusCanvasOnPointerDown);
 		this._currentModeCallbacks?.onReady?.();
 	}
 
 	public override unregister(): void {
+		this._viewer.canvas.removeEventListener('pointerdown', this._focusCanvasOnPointerDown);
 		super.unregister();
 	}
 

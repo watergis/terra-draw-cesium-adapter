@@ -540,9 +540,45 @@ describe('TerraDrawCesiumAdapter', () => {
 			adapter.register(callbacks);
 			expect(callbacks.onReady).toHaveBeenCalledTimes(1);
 		});
+
+		it('focuses the canvas on pointer down so keyboard events fire', () => {
+			const { adapter, viewer } = createAdapter();
+			const focus = vi.spyOn(viewer.canvas as unknown as HTMLElement, 'focus');
+			adapter.register(MockCallbacks());
+
+			viewer.canvas.dispatchEvent(new Event('pointerdown'));
+
+			expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+		});
+
+		it('suppresses the focus ring for the pointer focus and restores it on blur', () => {
+			const { adapter, viewer } = createAdapter();
+			const canvas = viewer.canvas as unknown as HTMLElement;
+			document.body.appendChild(canvas);
+			adapter.register(MockCallbacks());
+
+			canvas.dispatchEvent(new Event('pointerdown'));
+			expect(canvas.style.outline).toBe('none');
+
+			canvas.dispatchEvent(new Event('blur'));
+			expect(canvas.style.outline).toBe('');
+
+			canvas.remove();
+		});
 	});
 
 	describe('unregister', () => {
+		it('stops focusing the canvas on pointer down', () => {
+			const { adapter, viewer } = createAdapter();
+			const focus = vi.spyOn(viewer.canvas as unknown as HTMLElement, 'focus');
+			adapter.register(MockCallbacks());
+			adapter.unregister();
+
+			viewer.canvas.dispatchEvent(new Event('pointerdown'));
+
+			expect(focus).not.toHaveBeenCalled();
+		});
+
 		it('clears rendered entities on unregister', () => {
 			const { adapter, viewer } = createAdapter();
 			const callbacks = MockCallbacks();
