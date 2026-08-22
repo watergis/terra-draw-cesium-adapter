@@ -49,7 +49,7 @@ Merging to `main` opens (or updates) a release pull request; merging that publis
 
 ## Acknowledgements
 
-The Storybook harness under `packages/storybook/src/common` is adapted from the [Terra Draw](https://github.com/JamesLMilner/terra-draw) repository, MIT licensed, Copyright (c) James Milner. A copy of that license is included at [`packages/storybook/LICENSE-terra-draw`](./packages/storybook/LICENSE-terra-draw).
+The Storybook harness under `packages/storybook/src/common` is adapted from the [Terra Draw](https://github.com/JamesLMilner/terra-draw) repository, MIT licensed, Copyright (c) James Milner. A copy of that license is included at [`packages/storybook/LICENSE`](./packages/storybook/LICENSE).
 
 ## License
 
