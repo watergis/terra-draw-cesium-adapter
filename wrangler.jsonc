@@ -3,6 +3,7 @@
 	"name": "terra-draw-cesium-adapter",
 	"compatibility_date": "2026-08-19",
 	"workers_dev": true,
+	"preview_urls": true,
 	// Assets-only Worker: it serves the Storybook build output, so there is no `main` script.
 	"assets": {
 		"directory": "./packages/storybook/storybook-static"
