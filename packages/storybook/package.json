@@ -1,0 +1,31 @@
+{
+	"name": "terra-draw-cesium-adapter-storybook",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Storybook examples and tests for @watergis/terra-draw-cesium-adapter",
+	"type": "module",
+	"scripts": {
+		"dev": "storybook dev -p 6006",
+		"build": "storybook build",
+		"test": "vitest --project=storybook --maxWorkers=2 --run",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@watergis/terra-draw-cesium-adapter": "workspace:*",
+		"cesium": "^1.144.0",
+		"terra-draw": "^1.32.3"
+	},
+	"devDependencies": {
+		"@storybook/addon-docs": "^10.5.10",
+		"@storybook/addon-vitest": "^10.5.10",
+		"@storybook/html": "^10.5.10",
+		"@storybook/html-vite": "^10.5.10",
+		"@vitest/browser-playwright": "^4.1.11",
+		"playwright": "^1.57.0",
+		"storybook": "^10.5.10",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.4",
+		"vitest": "^4.1.11"
+	},
+	"license": "MIT"
+}

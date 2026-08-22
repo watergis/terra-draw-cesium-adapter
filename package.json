@@ -1,0 +1,36 @@
+{
+	"name": "terra-draw-cesium-adapter-monorepo",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Monorepo for @watergis/terra-draw-cesium-adapter - Terra Draw Adapter for CesiumJS",
+	"type": "module",
+	"scripts": {
+		"build": "pnpm --filter @watergis/terra-draw-cesium-adapter build",
+		"test": "pnpm --filter @watergis/terra-draw-cesium-adapter test",
+		"test:storybook": "pnpm --filter terra-draw-cesium-adapter-storybook test",
+		"storybook": "pnpm --filter terra-draw-cesium-adapter-storybook dev",
+		"storybook:build": "pnpm --filter terra-draw-cesium-adapter-storybook build",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"typecheck": "pnpm -r typecheck",
+		"changeset": "changeset",
+		"release": "pnpm build && changeset publish"
+	},
+	"devDependencies": {
+		"@changesets/cli": "^3.0.1",
+		"@eslint/js": "^9.39.0",
+		"eslint": "^9.39.0",
+		"eslint-config-prettier": "^10.1.8",
+		"prettier": "^3.6.2",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.46.0"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/watergis/terra-draw-cesium-adapter.git"
+	},
+	"packageManager": "pnpm@11.9.0"
+}

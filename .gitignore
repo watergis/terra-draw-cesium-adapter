@@ -141,3 +141,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Storybook
+storybook-static
+
+.claude/
+
+# Cloudflare Wrangler
+.wrangler

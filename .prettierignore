@@ -1,0 +1,7 @@
+dist
+node_modules
+storybook-static
+coverage
+pnpm-lock.yaml
+CHANGELOG.md
+.wrangler

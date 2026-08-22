@@ -1,0 +1,64 @@
+{
+	"name": "@watergis/terra-draw-cesium-adapter",
+	"version": "0.0.0",
+	"description": "Terra Draw Adapter for CesiumJS",
+	"source": "src/terra-draw-cesium-adapter.ts",
+	"type": "module",
+	"main": "./dist/terra-draw-cesium-adapter.module.js",
+	"module": "./dist/terra-draw-cesium-adapter.module.js",
+	"unpkg": "./dist/terra-draw-cesium-adapter.umd.js",
+	"types": "./dist/terra-draw-cesium-adapter.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/terra-draw-cesium-adapter.d.ts",
+			"default": "./dist/terra-draw-cesium-adapter.modern.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"sideEffects": false,
+	"scripts": {
+		"build": "pnpm build:js && pnpm build:modern && pnpm build:types",
+		"build:js": "vite build",
+		"build:modern": "vite build --mode modern",
+		"build:types": "tsc -p tsconfig.build.json",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
+	},
+	"peerDependencies": {
+		"cesium": ">=1.121.0",
+		"terra-draw": "^1.0.0"
+	},
+	"devDependencies": {
+		"@vitest/coverage-v8": "^4.1.11",
+		"cesium": "^1.144.0",
+		"jsdom": "^28.0.0",
+		"terra-draw": "^1.32.3",
+		"typescript": "^5.9.3",
+		"vite": "^8.2.2",
+		"vitest": "^4.1.11"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"author": "Jin Igarashi",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/watergis/terra-draw-cesium-adapter.git",
+		"directory": "packages/terra-draw-cesium-adapter"
+	},
+	"keywords": [
+		"map",
+		"drawing",
+		"draw",
+		"map drawing",
+		"geometry",
+		"cesium",
+		"cesiumjs",
+		"terra-draw"
+	]
+}
