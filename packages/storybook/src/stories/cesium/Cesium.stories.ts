@@ -1,9 +1,6 @@
-import { TerraDrawMarkerMode } from 'terra-draw';
 import { AllStories } from '../../common/stories';
 import { DefaultMeta } from '../../common/meta';
 import { SetupCesium } from './setup';
-import markerPng from './assets/marker.png';
-import markerJpg from './assets/marker.jpg';
 
 const meta = {
 	...DefaultMeta,
@@ -16,42 +13,8 @@ export default meta;
 
 // Ensure the names are set correctly for the stories
 export const Point = AllStories.Point;
-
-// Cesium loads billboard images as WebGL textures, which requires CORS-enabled
-// image hosts, so the marker stories use locally served images instead of the
-// upstream external URLs
-export const MarkerPNG = {
-	...AllStories.MarkerPNG,
-	args: {
-		...AllStories.MarkerPNG.args!,
-		modes: [
-			() =>
-				new TerraDrawMarkerMode({
-					styles: {
-						markerUrl: markerPng,
-						markerWidth: 24,
-						markerHeight: 40
-					}
-				})
-		]
-	}
-};
-export const MarkerJPG = {
-	...AllStories.MarkerJPG,
-	args: {
-		...AllStories.MarkerJPG.args!,
-		modes: [
-			() =>
-				new TerraDrawMarkerMode({
-					styles: {
-						markerUrl: markerJpg,
-						markerWidth: 24,
-						markerHeight: 40
-					}
-				})
-		]
-	}
-};
+export const MarkerPNG = AllStories.MarkerPNG;
+export const MarkerJPG = AllStories.MarkerJPG;
 export const Opacity = AllStories.Opacity;
 export const Polygon = AllStories.Polygon;
 export const PolygonWithCoordinatePoints = AllStories.PolygonWithCoordinatePoints;
