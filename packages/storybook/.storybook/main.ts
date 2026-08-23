@@ -21,6 +21,9 @@ const config: StorybookConfig = {
 			define: {
 				CESIUM_BASE_URL: JSON.stringify('/cesium')
 			},
+			// Expose CESIUM_ prefixed variables from .env, so that
+			// CESIUM_ION_ACCESS_TOKEN reaches the stories through import.meta.env
+			envPrefix: ['VITE_', 'CESIUM_'],
 			resolve: {
 				alias: {
 					// Resolve the adapter to its TypeScript source so that storybook

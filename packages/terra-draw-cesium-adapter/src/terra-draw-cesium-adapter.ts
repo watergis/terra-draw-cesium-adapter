@@ -144,11 +144,17 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 	}
 
 	/**
-	 * Converts a longitude/latitude to a pixel coordinate in the canvas
+	 * Converts a longitude/latitude to a pixel coordinate in the canvas.
+	 *
+	 * Geometry is rendered clamped to the ground, so the coordinate is projected
+	 * from the terrain surface rather than from the ellipsoid. Projecting from
+	 * height zero would put the pixel somewhere else entirely once the camera is
+	 * tilted over terrain, which would then throw off every pixel based decision
+	 * Terra Draw makes - drag thresholds, snapping and coordinate selection.
 	 */
 	public project(...args: Parameters<Project>): ReturnType<Project> {
 		const [lng, lat] = args;
-		const cartesian = this._lib.Cartesian3.fromDegrees(lng, lat);
+		const cartesian = this._lib.Cartesian3.fromDegrees(lng, lat, this.terrainHeight(lng, lat));
 		const windowCoordinates = this._lib.SceneTransforms.worldToWindowCoordinates(
 			this._viewer.scene,
 			cartesian
@@ -160,14 +166,35 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 	}
 
 	/**
-	 * Converts a pixel coordinate in the canvas to a longitude/latitude
+	 * The height of the terrain at a longitude/latitude, or zero when the tile it
+	 * belongs to has not been loaded yet and Cesium cannot say
+	 */
+	private terrainHeight(lng: number, lat: number): number {
+		const cartographic = this._lib.Cartographic.fromDegrees(lng, lat);
+		return this._viewer.scene.globe.getHeight(cartographic) ?? 0;
+	}
+
+	/**
+	 * Converts a pixel coordinate in the canvas to a longitude/latitude.
+	 *
+	 * The pick is made against the terrain surface, which is the surface the user
+	 * sees and the surface drawn geometry is clamped to. Picking the ellipsoid
+	 * instead lets the ray carry on underneath the terrain, so over ground of
+	 * height h a camera tilted by an angle t returns a coordinate roughly
+	 * h / tan(t) too far away - nothing when looking straight down, which is why
+	 * this only shows up once the map is tilted.
+	 *
+	 * The ellipsoid is still used as a fallback, for the pixels where there is no
+	 * terrain to hit: the sky beyond the horizon, and tiles that have not loaded.
 	 */
 	public unproject(...args: Parameters<Unproject>): ReturnType<Unproject> {
 		const [x, y] = args;
-		const cartesian = this._viewer.scene.camera.pickEllipsoid(
-			new this._lib.Cartesian2(x, y),
-			this._viewer.scene.globe.ellipsoid
-		);
+		const scene = this._viewer.scene;
+		const windowPosition = new this._lib.Cartesian2(x, y);
+		const ray = scene.camera.getPickRay(windowPosition);
+		const cartesian =
+			(ray && scene.globe.pick(ray, scene)) ??
+			scene.camera.pickEllipsoid(windowPosition, scene.globe.ellipsoid);
 		if (!cartesian) {
 			throw new Error(`Cannot unproject screen coordinate ${x},${y} - it is not on the globe`);
 		}

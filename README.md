@@ -37,6 +37,14 @@ pnpm --filter terra-draw-cesium-adapter-storybook exec playwright install chromi
 
 The stories use Cesium's bundled offline Natural Earth II imagery, so no Cesium Ion access token is needed.
 
+That offline texture has no detail left at the zoom levels the stories draw at, though. Setting a token switches every story over to Cesium World Imagery, and additionally renders Cesium World Terrain in the terrain stories, which is what you want when checking drawing on tilted, mountainous ground. Copy [`packages/storybook/.env.example`](./packages/storybook/.env.example) to `packages/storybook/.env` and fill in `CESIUM_ION_ACCESS_TOKEN`:
+
+```bash
+cp packages/storybook/.env.example packages/storybook/.env
+```
+
+Without a token everything falls back to the offline flat globe, which is how CI runs the stories.
+
 ## Releasing
 
 Releases are managed with [Changesets](https://github.com/changesets/changesets). Add a changeset alongside your change:

@@ -79,6 +79,10 @@ Features are rendered as Cesium entities in `viewer.entities`:
 
 Everything is clamped to the ground, which keeps drawn geometry draped over imagery and terrain and is also what makes Terra Draw's `zIndex` styling take effect — Cesium only honours `zIndex` on clamped geometry.
 
+Because geometry is drawn on the terrain, the adapter also picks against the terrain: a pointer position is turned into a coordinate by intersecting the pick ray with the terrain surface, and a coordinate is projected back to a pixel from the terrain height at that point. That is what keeps a coordinate on the pixel it was clicked on when the camera is tilted. Where there is no terrain to hit — beyond the horizon, or on a tile that has not loaded yet — the adapter falls back to the WGS84 ellipsoid.
+
+Geometry on 3D Tiles is not taken into account; picking follows the globe's terrain, not tilesets drawn on top of it.
+
 ## Known differences from other adapters
 
 - `setDoubleClickToZoom` is effectively a no-op. Cesium has no double-click-to-zoom behaviour; what it does have is a default left-double-click handler that tracks the picked entity, which conflicts with double-click-to-finish drawing. The adapter removes that handler when it is constructed and cannot restore it.
