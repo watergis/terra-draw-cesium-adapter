@@ -16,7 +16,8 @@ const createMockLib = () =>
 			return { callback, isConstant, getValue: () => callback() };
 		}),
 		Cartographic: {
-			fromCartesian: vi.fn(() => ({ longitude: 0.1, latitude: 0.2 }))
+			fromCartesian: vi.fn(() => ({ longitude: 0.1, latitude: 0.2 })),
+			fromDegrees: vi.fn((longitude: number, latitude: number) => ({ longitude, latitude }))
 		},
 		Color: {
 			fromCssColorString: vi.fn((color: string) => ({
@@ -60,9 +61,14 @@ const createMockViewer = () => {
 		canvas,
 		scene: {
 			camera: {
-				pickEllipsoid: vi.fn(() => ({}))
+				pickEllipsoid: vi.fn(() => ({ ellipsoid: true })),
+				getPickRay: vi.fn(() => ({ ray: true }))
 			},
-			globe: { ellipsoid: {} },
+			globe: {
+				ellipsoid: {},
+				pick: vi.fn(() => ({ terrain: true })),
+				getHeight: vi.fn(() => 123)
+			},
 			screenSpaceCameraController: {
 				enableRotate: true,
 				enableTranslate: true
@@ -188,11 +194,9 @@ describe('TerraDrawCesiumAdapter', () => {
 		it('returns the longitude and latitude for a pointer event on the globe', () => {
 			const { adapter, viewer, lib } = createAdapter();
 			const result = adapter.getLngLatFromEvent(MockPointerEvent());
-			expect(viewer.scene.camera.pickEllipsoid).toHaveBeenCalledWith(
-				{ x: 90, y: 180 },
-				viewer.scene.globe.ellipsoid
-			);
-			expect(lib.Cartographic.fromCartesian).toHaveBeenCalled();
+			expect(viewer.scene.camera.getPickRay).toHaveBeenCalledWith({ x: 90, y: 180 });
+			expect(viewer.scene.globe.pick).toHaveBeenCalledWith({ ray: true }, viewer.scene);
+			expect(lib.Cartographic.fromCartesian).toHaveBeenCalledWith({ terrain: true });
 			expect(result).toEqual({
 				lng: 0.1 * (180 / Math.PI),
 				lat: 0.2 * (180 / Math.PI)
@@ -201,6 +205,7 @@ describe('TerraDrawCesiumAdapter', () => {
 
 		it('returns null when the event does not intersect the globe', () => {
 			const viewer = createMockViewer();
+			(viewer.scene.globe.pick as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
 			(viewer.scene.camera.pickEllipsoid as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
 			const { adapter } = createAdapter({ viewer });
 			expect(adapter.getLngLatFromEvent(MockPointerEvent())).toBeNull();
@@ -253,12 +258,35 @@ describe('TerraDrawCesiumAdapter', () => {
 		it('returns the screen coordinate for a longitude and latitude', () => {
 			const { adapter, viewer, lib } = createAdapter();
 			const result = adapter.project(135, 35);
-			expect(lib.Cartesian3.fromDegrees).toHaveBeenCalledWith(135, 35);
+			expect(lib.Cartesian3.fromDegrees).toHaveBeenCalledWith(135, 35, 123);
 			expect(lib.SceneTransforms.worldToWindowCoordinates).toHaveBeenCalledWith(viewer.scene, {
 				lng: 135,
 				lat: 35
 			});
 			expect(result).toEqual({ x: 50, y: 60 });
+		});
+
+		it('projects from the terrain surface so that it matches where geometry is drawn', () => {
+			const { adapter, viewer, lib } = createAdapter();
+			(viewer.scene.globe.getHeight as ReturnType<typeof vi.fn>).mockReturnValue(1500);
+
+			adapter.project(135, 35);
+
+			expect(lib.Cartographic.fromDegrees).toHaveBeenCalledWith(135, 35);
+			expect(viewer.scene.globe.getHeight).toHaveBeenCalledWith({
+				longitude: 135,
+				latitude: 35
+			});
+			expect(lib.Cartesian3.fromDegrees).toHaveBeenCalledWith(135, 35, 1500);
+		});
+
+		it('falls back to a height of zero when the terrain tile has not loaded', () => {
+			const { adapter, viewer, lib } = createAdapter();
+			(viewer.scene.globe.getHeight as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
+
+			adapter.project(135, 35);
+
+			expect(lib.Cartesian3.fromDegrees).toHaveBeenCalledWith(135, 35, 0);
 		});
 
 		it('throws when the coordinate cannot be projected', () => {
@@ -273,20 +301,54 @@ describe('TerraDrawCesiumAdapter', () => {
 
 	describe('unproject', () => {
 		it('returns the longitude and latitude for a screen coordinate', () => {
-			const { adapter, viewer } = createAdapter();
+			const { adapter, viewer, lib } = createAdapter();
 			const result = adapter.unproject(50, 60);
-			expect(viewer.scene.camera.pickEllipsoid).toHaveBeenCalledWith(
-				{ x: 50, y: 60 },
-				viewer.scene.globe.ellipsoid
-			);
+			expect(viewer.scene.camera.getPickRay).toHaveBeenCalledWith({ x: 50, y: 60 });
+			expect(viewer.scene.globe.pick).toHaveBeenCalledWith({ ray: true }, viewer.scene);
+			expect(lib.Cartographic.fromCartesian).toHaveBeenCalledWith({ terrain: true });
 			expect(result).toEqual({
 				lng: 0.1 * (180 / Math.PI),
 				lat: 0.2 * (180 / Math.PI)
 			});
 		});
 
+		it('picks the terrain surface rather than the ellipsoid', () => {
+			const { adapter, viewer } = createAdapter();
+			adapter.unproject(50, 60);
+			expect(viewer.scene.camera.pickEllipsoid).not.toHaveBeenCalled();
+		});
+
+		it('falls back to the ellipsoid when the ray misses the terrain', () => {
+			const viewer = createMockViewer();
+			(viewer.scene.globe.pick as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
+			const { adapter, lib } = createAdapter({ viewer });
+
+			adapter.unproject(50, 60);
+
+			expect(viewer.scene.camera.pickEllipsoid).toHaveBeenCalledWith(
+				{ x: 50, y: 60 },
+				viewer.scene.globe.ellipsoid
+			);
+			expect(lib.Cartographic.fromCartesian).toHaveBeenCalledWith({ ellipsoid: true });
+		});
+
+		it('falls back to the ellipsoid when the camera cannot produce a pick ray', () => {
+			const viewer = createMockViewer();
+			(viewer.scene.camera.getPickRay as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
+			const { adapter } = createAdapter({ viewer });
+
+			adapter.unproject(50, 60);
+
+			expect(viewer.scene.globe.pick).not.toHaveBeenCalled();
+			expect(viewer.scene.camera.pickEllipsoid).toHaveBeenCalledWith(
+				{ x: 50, y: 60 },
+				viewer.scene.globe.ellipsoid
+			);
+		});
+
 		it('throws when the screen coordinate is not on the globe', () => {
 			const viewer = createMockViewer();
+			(viewer.scene.globe.pick as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
 			(viewer.scene.camera.pickEllipsoid as ReturnType<typeof vi.fn>).mockReturnValue(undefined);
 			const { adapter } = createAdapter({ viewer });
 			expect(() => adapter.unproject(50, 60)).toThrow();

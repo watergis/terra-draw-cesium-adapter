@@ -23,6 +23,18 @@ export interface StoryArgs {
 	afterRender?: (draw: TerraDraw) => void;
 	showButtons?: boolean;
 	enableUndoRedo?: boolean;
+	/**
+	 * Camera pitch in degrees, where -90 looks straight down. Only the Cesium
+	 * stories use it, as it is the only adapter with a tiltable camera
+	 */
+	pitch?: number;
+	/**
+	 * Renders real terrain rather than a smooth globe. Requires a Cesium Ion
+	 * access token - see packages/storybook/.env.example - and is ignored
+	 * without one. The imagery is switched to Cesium World Imagery whenever a
+	 * token is set, terrain or not
+	 */
+	terrain?: boolean;
 }
 
 export const DefaultZoom = {
@@ -120,7 +132,14 @@ const LocationRioDeJaneiro = {
 	centerLng: -43.1729
 };
 
+// Mount Fuji, whose slopes make it obvious whether drawing follows the terrain
+const LocationMountFuji = {
+	centerLat: 35.301677054,
+	centerLng: 138.729858398
+};
+
 export {
+	LocationMountFuji,
 	LocationSanFrancisco,
 	LocationLosAngeles,
 	LocationLondon,

@@ -1,5 +1,12 @@
+import {
+	TerraDrawLineStringMode,
+	TerraDrawPointMode,
+	TerraDrawPolygonMode,
+	TerraDrawSelectMode
+} from 'terra-draw';
 import { AllStories } from '../../common/stories';
 import { DefaultMeta } from '../../common/meta';
+import { DefaultPlay, DefaultSize, LocationMountFuji, type Story } from '../../common/config';
 import { SetupCesium } from './setup';
 
 const meta = {
@@ -58,3 +65,38 @@ export const ProgrammaticRotate = AllStories.ProgrammaticRotate;
 export const ProgrammaticScale = AllStories.ProgrammaticScale;
 export const ProgrammaticUpdate = AllStories.ProgrammaticUpdate;
 export const UndoRedo = AllStories.UndoRedo;
+
+/**
+ * Cesium is the only adapter with a tiltable camera and real terrain, so this
+ * story has no counterpart in the shared set. Drawing on the slopes of Mount
+ * Fuji from a tilted camera is what catches the picking surface being the
+ * ellipsoid rather than the terrain - the two agree only when looking straight
+ * down. Needs a Cesium Ion access token, see packages/storybook/.env.example;
+ * without one it falls back to the offline flat globe of the other stories.
+ */
+export const TerrainTilted: Story = {
+	...DefaultPlay,
+	args: {
+		...DefaultSize,
+		...LocationMountFuji,
+		id: 'terrain-tilted',
+		zoom: 13,
+		pitch: -45,
+		terrain: true,
+		instructions:
+			'Draw on the slopes with the camera tilted - each coordinate should land where it was clicked',
+		modes: [
+			() => new TerraDrawPointMode(),
+			() => new TerraDrawLineStringMode(),
+			() => new TerraDrawPolygonMode({ showCoordinatePoints: true }),
+			() =>
+				new TerraDrawSelectMode({
+					flags: {
+						point: { feature: { draggable: true } },
+						linestring: { feature: { draggable: true, coordinates: { draggable: true } } },
+						polygon: { feature: { draggable: true, coordinates: { draggable: true } } }
+					}
+				})
+		]
+	}
+};
