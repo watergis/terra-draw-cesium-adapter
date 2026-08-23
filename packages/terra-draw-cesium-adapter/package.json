@@ -1,6 +1,6 @@
 {
 	"name": "@watergis/terra-draw-cesium-adapter",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Terra Draw Adapter for CesiumJS",
 	"source": "src/terra-draw-cesium-adapter.ts",
 	"type": "module",
