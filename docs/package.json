@@ -14,7 +14,7 @@
 		"@turf/area": "^7.4.0",
 		"@turf/length": "^7.4.0",
 		"@watergis/terra-draw-cesium-adapter": "workspace:*",
-		"cesium": "1.144.0",
+		"cesium": "1.146.0",
 		"flatgeobuf": "^4.5.0",
 		"lucide-preact": "^1.53.0",
 		"preact": "^11.0.1",

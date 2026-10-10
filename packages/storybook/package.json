@@ -12,7 +12,7 @@
 	},
 	"dependencies": {
 		"@watergis/terra-draw-cesium-adapter": "workspace:*",
-		"cesium": "1.144.0",
+		"cesium": "1.146.0",
 		"terra-draw": "1.37.0"
 	},
 	"devDependencies": {
