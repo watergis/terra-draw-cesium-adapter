@@ -1,6 +1,40 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": [
+		"mergeConfidence:all-badges",
+		"config:recommended",
+		":preserveSemverRanges",
+		":semanticCommitTypeAll(chore)"
+	],
+	"lockFileMaintenance": {
+		"enabled": true,
+		"automerge": true
+	},
+	"packageRules": [
+		{
+			"matchUpdateTypes": ["minor", "patch"],
+			"matchCurrentVersion": "!/^0/",
+			"automerge": true
+		},
+		{
+			"description": "cesium and terra-draw bumps may need adapter changes and a release, so always merge them manually",
+			"matchPackageNames": ["cesium", "terra-draw"],
+			"automerge": false
+		},
+		{
+			"description": "Pin cesium and terra-draw so lock file maintenance cannot bump them silently",
+			"matchPackageNames": ["cesium", "terra-draw"],
+			"matchDepTypes": ["dependencies", "devDependencies"],
+			"rangeStrategy": "pin"
+		}
+	],
+	"major": {
+		"minimumReleaseAge": "7 days"
+	},
+	"minor": {
+		"minimumReleaseAge": "3 days"
+	},
+	"patch": {
+		"minimumReleaseAge": "2 days"
+	}
 }
