@@ -13,7 +13,7 @@
 	"dependencies": {
 		"@watergis/terra-draw-cesium-adapter": "workspace:*",
 		"cesium": "^1.144.0",
-		"terra-draw": "^1.32.3"
+		"terra-draw": "^1.37.0"
 	},
 	"devDependencies": {
 		"@storybook/addon-docs": "^10.5.10",
