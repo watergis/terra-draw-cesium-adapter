@@ -1,0 +1,143 @@
+.home {
+	height: calc(100vh - 70px);
+	width: 100%;
+	display: flex;
+	box-sizing: border-box;
+}
+
+.leftButtons {
+	position: absolute;
+	padding: 8px;
+	width: 52px;
+	height: 100%;
+}
+
+.map {
+	position: relative;
+	height: calc(100vh - 70px);
+	outline: none;
+	flex-grow: 1;
+	min-width: 0;
+}
+
+.cesium {
+	position: absolute;
+	inset: 0;
+}
+
+.tab,
+.tabActive {
+	cursor: pointer;
+	margin-right: 8px;
+	padding: 7px 12px;
+	border-radius: 9px;
+	border: 1px solid transparent;
+	color: #465564;
+	font-weight: 700;
+	transition:
+		border-color 0.16s ease,
+		background-color 0.16s ease,
+		color 0.16s ease;
+}
+
+.tabActive {
+	color: #008a5b;
+	border-color: #00d088;
+	background: #effff8;
+	box-shadow: inset 0 0 0 1px rgba(0, 208, 136, 0.6);
+}
+
+.tab:hover,
+.tabActive:hover {
+	border-color: #00d088;
+	background: #f8fffc;
+}
+
+.tabButtons {
+	width: 100%;
+	padding: 12px;
+	font-size: 15px;
+	margin-top: 0;
+	border-bottom: 1px solid #e0e7ef;
+	display: flex;
+	align-items: center;
+}
+
+.buttons {
+	position: relative;
+	top: 0;
+	z-index: 1000;
+	margin: auto;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	width: 50%;
+}
+
+.expanded {
+	display: flex;
+	width: 500px;
+	flex-shrink: 0;
+	height: 100%;
+	min-height: 0;
+	transition: width 0.32s ease;
+	border: 1px solid #dfe6ec;
+	background: #ffffff;
+	overflow: hidden;
+}
+
+.collapsed {
+	display: flex;
+	width: 25px;
+	transition: width 0.32s ease;
+	border: 1px solid #dfe6ec;
+	border-radius: 12px;
+	background: #ffffff;
+	overflow: hidden;
+}
+
+.collapse {
+	cursor: pointer;
+	width: 34px;
+	min-width: 34px;
+	border: 0;
+	border-right: 1px solid #e0e7ef;
+	background: #f8fafc;
+	color: #3d4b59;
+	font-weight: 700;
+	font-size: 16px;
+	transition: background-color 0.16s ease;
+}
+
+.collapse:hover {
+	background: #eef2f6;
+}
+
+.tabs {
+	flex: 1;
+	width: 100%;
+	min-height: 0;
+	opacity: 1;
+	transition: opacity 0.16s ease;
+	display: flex;
+	flex-direction: column;
+	background: #ffffff;
+}
+
+.tabsHidden {
+	width: 0;
+	opacity: 0;
+	transition: opacity 0.16s ease;
+	display: none;
+}
+
+@media screen and (max-width: 900px) {
+	.expanded,
+	.collapsed {
+		display: none;
+	}
+
+	.buttons {
+		width: 85%;
+	}
+}

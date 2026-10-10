@@ -1,0 +1,150 @@
+import {
+	TerraDraw,
+	TerraDrawSelectMode,
+	TerraDrawPointMode,
+	TerraDrawLineStringMode,
+	TerraDrawPolyLineMode,
+	TerraDrawPolygonMode,
+	TerraDrawCircleMode,
+	TerraDrawFreehandMode,
+	ValidateNotSelfIntersecting,
+	TerraDrawRectangleMode,
+	TerraDrawMarkerMode,
+	TerraDrawModeUndoRedo,
+	TerraDrawSessionUndoRedo,
+	TerraDrawUndoRedoKeyboardShortcuts
+} from 'terra-draw';
+
+import * as Cesium from 'cesium';
+import { TerraDrawCesiumAdapter } from '@watergis/terra-draw-cesium-adapter';
+
+export function setupDraw(viewer: Cesium.Viewer) {
+	return new TerraDraw({
+		tracked: true,
+		adapter: new TerraDrawCesiumAdapter({
+			map: viewer,
+			// The whole Cesium namespace structurally satisfies InjectableCesium
+			lib: Cesium,
+			coordinatePrecision: 9
+		}),
+		modes: [
+			new TerraDrawSelectMode({
+				flags: {
+					marker: {
+						feature: {
+							draggable: true
+						}
+					},
+					polygon: {
+						feature: {
+							scaleable: true,
+							rotateable: true,
+							draggable: true,
+							coordinates: {
+								midpoints: true,
+								draggable: true,
+								deletable: true
+							}
+						}
+					},
+					linestring: {
+						feature: {
+							draggable: true,
+							coordinates: {
+								midpoints: true,
+								draggable: true,
+								deletable: true
+							}
+						}
+					},
+					polyline: {
+						feature: {
+							draggable: true,
+							coordinates: {
+								midpoints: true,
+								draggable: true,
+								deletable: true
+							}
+						}
+					},
+					circle: {
+						feature: {
+							draggable: true
+						}
+					},
+					point: {
+						feature: {
+							draggable: true
+						}
+					},
+					rectangle: {
+						feature: {
+							draggable: true,
+							coordinates: {
+								resizable: 'opposite'
+							}
+						}
+					},
+					freehand: {
+						feature: {
+							draggable: true
+						}
+					}
+				}
+			}),
+			new TerraDrawPointMode(),
+			new TerraDrawLineStringMode({
+				validation: (feature, { updateType }) => {
+					if (updateType === 'finish' || updateType === 'commit') {
+						return ValidateNotSelfIntersecting(feature);
+					}
+					return {
+						valid: true
+					};
+				}
+			}),
+			new TerraDrawPolyLineMode({
+				validation: (feature, { updateType }) => {
+					if (updateType === 'finish' || updateType === 'commit') {
+						return ValidateNotSelfIntersecting(feature);
+					}
+					return {
+						valid: true
+					};
+				}
+			}),
+			new TerraDrawRectangleMode(),
+			new TerraDrawPolygonMode({
+				pointerDistance: 30,
+				validation: (feature, { updateType }) => {
+					if (updateType === 'finish' || updateType === 'commit') {
+						return ValidateNotSelfIntersecting(feature);
+					}
+					return {
+						valid: true
+					};
+				}
+			}),
+			new TerraDrawCircleMode(),
+			new TerraDrawFreehandMode({
+				pointerDistance: 5,
+				validation: (feature) => {
+					return ValidateNotSelfIntersecting(feature);
+				}
+			}),
+			new TerraDrawMarkerMode()
+		],
+		undoRedo: {
+			modeLevel: new TerraDrawModeUndoRedo({ maxStackSize: 100 }),
+			sessionLevel: new TerraDrawSessionUndoRedo({ maxStackSize: 100 }),
+			keyboardShortcuts: new TerraDrawUndoRedoKeyboardShortcuts({
+				undo: [
+					{
+						key: 'z',
+						heldKeys: ['control']
+					}
+				]
+			})
+		}
+	});
+}

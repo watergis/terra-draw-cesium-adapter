@@ -1,0 +1,7 @@
+/*
+ * The README opens with its own heading, which duplicates the project title
+ * TypeDoc renders above it on the index page
+ */
+.tsd-page-title:has(+ .tsd-typography > h1:first-child) {
+	display: none;
+}

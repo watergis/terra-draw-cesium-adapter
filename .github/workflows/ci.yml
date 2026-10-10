@@ -52,6 +52,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: build
         run: pnpm build
+      - name: build the website
+        run: pnpm docs:build
 
   unit-test:
     runs-on: ubuntu-latest
