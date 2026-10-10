@@ -1,5 +1,15 @@
 # @watergis/terra-draw-cesium-adapter
 
+## 0.1.0
+
+### Minor Changes
+
+- ca04b82: feat: support the `markerAnchor` style property.
+
+### Patch Changes
+
+- a2b4d33: chore: upgraded terra-draw to v1.37.0 in devDependencies.
+
 ## 0.0.2
 
 ### Patch Changes
