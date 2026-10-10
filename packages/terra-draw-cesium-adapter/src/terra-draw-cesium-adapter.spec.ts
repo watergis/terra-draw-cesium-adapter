@@ -39,7 +39,8 @@ const createMockLib = () =>
 		},
 		ScreenSpaceEventType: { LEFT_DOUBLE_CLICK: 2 },
 		HeightReference: { CLAMP_TO_GROUND: 1 },
-		VerticalOrigin: { BOTTOM: 1 }
+		HorizontalOrigin: { CENTER: 0, LEFT: 1, RIGHT: -1 },
+		VerticalOrigin: { CENTER: 0, BOTTOM: 1, TOP: -1 }
 	}) as unknown as InjectableCesium;
 
 const createMockViewer = () => {
@@ -431,9 +432,51 @@ describe('TerraDrawCesiumAdapter', () => {
 				image: 'marker.png',
 				width: 32,
 				height: 40,
+				horizontalOrigin: lib.HorizontalOrigin.CENTER,
 				verticalOrigin: lib.VerticalOrigin.BOTTOM
 			});
 			expect(options.point).toBeUndefined();
+		});
+
+		it.each([
+			['top-left', 'LEFT', 'TOP'],
+			['top', 'CENTER', 'TOP'],
+			['top-right', 'RIGHT', 'TOP'],
+			['left', 'LEFT', 'CENTER'],
+			['center', 'CENTER', 'CENTER'],
+			['right', 'RIGHT', 'CENTER'],
+			['bottom-left', 'LEFT', 'BOTTOM'],
+			['bottom', 'CENTER', 'BOTTOM'],
+			['bottom-right', 'RIGHT', 'BOTTOM']
+		] as const)('anchors a marker at %s', (markerAnchor, horizontal, vertical) => {
+			const { adapter, viewer, lib } = createAdapter();
+			const feature = createTestFeature({ type: 'Point', coordinates: [135, 35] });
+			adapter.render(
+				{ created: [feature], updated: [], unchanged: [], deletedIds: [] },
+				MockStyling({ markerUrl: 'marker.png', markerAnchor }) as never
+			);
+			const options = (viewer.entities.add as ReturnType<typeof vi.fn>).mock.calls[0]![0];
+			expect(options.billboard.horizontalOrigin).toBe(lib.HorizontalOrigin[horizontal]);
+			expect(options.billboard.verticalOrigin).toBe(lib.VerticalOrigin[vertical]);
+		});
+
+		it('re-anchors the billboard of an updated marker without recreating it', () => {
+			const { adapter, viewer, lib } = createAdapter();
+			const feature = createTestFeature({ type: 'Point', coordinates: [135, 35] });
+			adapter.render(
+				{ created: [feature], updated: [], unchanged: [], deletedIds: [] },
+				MockStyling({ markerUrl: 'marker.png' }) as never
+			);
+			const entity = (viewer.entities.add as ReturnType<typeof vi.fn>).mock.results[0]!.value;
+
+			adapter.render(
+				{ created: [], updated: [feature], unchanged: [], deletedIds: [] },
+				MockStyling({ markerUrl: 'marker.png', markerAnchor: 'top-left' }) as never
+			);
+			expect(viewer.entities.add).toHaveBeenCalledTimes(1);
+			expect(viewer.entities.remove).not.toHaveBeenCalled();
+			expect(entity.billboard.horizontalOrigin).toBe(lib.HorizontalOrigin.LEFT);
+			expect(entity.billboard.verticalOrigin).toBe(lib.VerticalOrigin.TOP);
 		});
 
 		it('creates a polyline entity for a created LineString feature', () => {
