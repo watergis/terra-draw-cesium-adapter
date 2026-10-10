@@ -36,5 +36,5 @@
 		"type": "git",
 		"url": "https://github.com/watergis/terra-draw-cesium-adapter.git"
 	},
-	"packageManager": "pnpm@11.9.0"
+	"packageManager": "pnpm@11.28.5"
 }
