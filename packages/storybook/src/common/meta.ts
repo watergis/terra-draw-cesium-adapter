@@ -2,7 +2,7 @@
  * Adapted from terra-draw (https://github.com/JamesLMilner/terra-draw)
  * MIT License, Copyright (c) James Milner
  */
-import { Meta } from '@storybook/html';
+import { Meta } from '@storybook/html-vite';
 import { StoryArgs } from './config';
 
 export const DefaultMeta = {
