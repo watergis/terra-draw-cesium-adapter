@@ -30,7 +30,7 @@ const Header = ({ route }: { route: string }) => (
 				<span class={style.navDivider} aria-hidden={true} />
 				<a
 					class={style.externalLink}
-					href={`${repository}/tree/main/packages/terra-draw-cesium-adapter#readme`}
+					href="https://github.com/JamesLMilner/terra-draw/blob/main/guides/1.GETTING_STARTED.md"
 					target="_blank"
 					rel="noopener noreferrer"
 					title="Getting Started guide (opens in new tab)"
