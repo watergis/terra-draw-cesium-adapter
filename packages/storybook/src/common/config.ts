@@ -2,7 +2,7 @@
  * Adapted from terra-draw (https://github.com/JamesLMilner/terra-draw)
  * MIT License, Copyright (c) James Milner
  */
-import { StoryObj } from '@storybook/html';
+import { StoryObj } from '@storybook/html-vite';
 import { TerraDraw } from 'terra-draw';
 import { waitFor, within, expect } from 'storybook/test';
 
