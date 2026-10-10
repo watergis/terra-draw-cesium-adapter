@@ -1,0 +1,19 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: pnpm lint
+    format:
+      run: pnpm format:check
+    # Storybook and the website type check against the adapter's built
+    # declarations, so the adapter is built first
+    typecheck:
+      run: pnpm build && pnpm typecheck
+
+pre-push:
+  parallel: true
+  commands:
+    build:
+      run: pnpm build
+    test:
+      run: pnpm test
