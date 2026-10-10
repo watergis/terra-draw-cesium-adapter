@@ -14,11 +14,11 @@
 		"@turf/area": "^7.3.5",
 		"@turf/length": "^7.3.5",
 		"@watergis/terra-draw-cesium-adapter": "workspace:*",
-		"cesium": "^1.144.0",
+		"cesium": "1.144.0",
 		"flatgeobuf": "^3.33.0",
 		"lucide-preact": "^1.7.0",
 		"preact": "^10.29.7",
-		"terra-draw": "^1.37.0"
+		"terra-draw": "1.37.0"
 	},
 	"devDependencies": {
 		"@preact/preset-vite": "^2.10.5",

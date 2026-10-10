@@ -48,7 +48,7 @@ importers:
         specifier: workspace:*
         version: link:../packages/terra-draw-cesium-adapter
       cesium:
-        specifier: ^1.144.0
+        specifier: 1.144.0
         version: 1.144.0
       flatgeobuf:
         specifier: ^3.33.0
@@ -60,7 +60,7 @@ importers:
         specifier: ^10.29.7
         version: 10.29.8
       terra-draw:
-        specifier: ^1.37.0
+        specifier: 1.37.0
         version: 1.37.0
     devDependencies:
       '@preact/preset-vite':
@@ -91,10 +91,10 @@ importers:
         specifier: workspace:*
         version: link:../terra-draw-cesium-adapter
       cesium:
-        specifier: ^1.144.0
+        specifier: 1.144.0
         version: 1.144.0
       terra-draw:
-        specifier: ^1.37.0
+        specifier: 1.37.0
         version: 1.37.0
     devDependencies:
       '@storybook/addon-docs':
@@ -134,13 +134,13 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@vitest/browser@4.1.11)(vitest@4.1.11)
       cesium:
-        specifier: ^1.144.0
+        specifier: 1.144.0
         version: 1.144.0
       jsdom:
         specifier: ^28.0.0
         version: 28.1.0
       terra-draw:
-        specifier: ^1.37.0
+        specifier: 1.37.0
         version: 1.37.0
       typescript:
         specifier: ^5.9.3
