@@ -15,7 +15,10 @@ export default defineConfig({
 		viteStaticCopy({
 			targets: ['Workers', 'Assets', 'Widgets', 'ThirdParty'].map((directory) => ({
 				src: `${cesiumBuild}/${directory}`,
-				dest: cesiumBaseUrl.slice(1)
+				dest: cesiumBaseUrl.slice(1),
+				// Drop the path leading up to the directory, so that it is copied as
+				// /cesium/Workers rather than /cesium/node_modules/cesium/Build/Cesium/Workers
+				rename: { stripBase: cesiumBuild.split('/').length }
 			}))
 		})
 	],

@@ -11,23 +11,23 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@turf/area": "^7.3.5",
-		"@turf/length": "^7.3.5",
+		"@turf/area": "^7.4.0",
+		"@turf/length": "^7.4.0",
 		"@watergis/terra-draw-cesium-adapter": "workspace:*",
 		"cesium": "1.144.0",
-		"flatgeobuf": "^4.0.0",
-		"lucide-preact": "^1.7.0",
-		"preact": "^10.29.7",
+		"flatgeobuf": "^4.5.0",
+		"lucide-preact": "^1.53.0",
+		"preact": "^11.0.1",
 		"terra-draw": "1.37.0"
 	},
 	"devDependencies": {
-		"@preact/preset-vite": "^2.10.5",
+		"@preact/preset-vite": "^2.10.6",
 		"@types/geojson": "^7946.0.16",
 		"@types/node": "^24.19.1",
-		"typedoc": "^0.28.14",
-		"typescript": "^5.9.3",
-		"vite": "^8.2.2",
-		"vite-plugin-static-copy": "^3.1.4"
+		"typedoc": "^0.28.20",
+		"typescript": "~6.0.3",
+		"vite": "^8.3.4",
+		"vite-plugin-static-copy": "^4.1.1"
 	},
 	"license": "MIT"
 }

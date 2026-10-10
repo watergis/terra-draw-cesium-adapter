@@ -20,15 +20,15 @@
 		"release": "changeset publish"
 	},
 	"devDependencies": {
-		"@changesets/cli": "^3.0.1",
-		"@eslint/js": "^9.39.0",
-		"eslint": "^9.39.0",
+		"@changesets/cli": "^3.0.3",
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.12.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-storybook": "^10.6.1",
 		"lefthook": "^2.2.1",
-		"prettier": "^3.6.2",
-		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.46.0",
+		"prettier": "^3.9.9",
+		"typescript": "~6.0.3",
+		"typescript-eslint": "^8.71.1",
 		"wrangler": "^4.149.0"
 	},
 	"license": "MIT",
