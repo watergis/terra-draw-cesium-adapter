@@ -56,20 +56,25 @@
 	color: #008a5b;
 }
 
-.logo {
+.logoLink {
 	display: flex;
+	align-items: center;
 	align-self: center;
-	gap: 6px;
+	gap: 8px;
 	padding-left: 20px;
-	font-size: 20px;
-	font-weight: 700;
-	white-space: nowrap;
-	color: #1e293b;
 	text-decoration: none;
 }
 
-.logoAccent {
-	color: #00a86e;
+.logo {
+	height: 35px;
+}
+
+.logoSuffix {
+	font-size: 30px;
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: -0.5px;
+	color: #00d088;
 }
 
 .githubIcon {
@@ -79,9 +84,16 @@
 }
 
 @media screen and (max-width: 900px) {
-	.logo {
-		font-size: 16px;
+	.logoLink {
 		padding-left: 14px;
+	}
+
+	.logo {
+		height: 24px;
+	}
+
+	.logoSuffix {
+		font-size: 21px;
 	}
 
 	.routeLink {
@@ -178,9 +190,21 @@
 }
 
 @media screen and (max-width: 500px) {
-	.logo {
-		font-size: 14px;
+	.logoLink {
 		padding-left: 10px;
+	}
+
+	.logoLink {
+		gap: 4px;
+	}
+
+	.logo {
+		height: 13px;
+	}
+
+	.logoSuffix {
+		font-size: 11.5px;
+		letter-spacing: 0;
 	}
 
 	.sponsorButton,
@@ -195,7 +219,7 @@
 	}
 
 	.header nav a {
-		padding: 0 7px;
+		padding: 0 5px;
 		min-width: 0;
 		font-size: 13px;
 	}
@@ -207,5 +231,13 @@
 	.githubIcon {
 		width: 22px;
 		height: 22px;
+	}
+}
+
+/* The wider logo leaves no room for the Getting Started pill on narrow desktops */
+@media screen and (max-width: 1100px) {
+	.navDivider,
+	.externalLink {
+		display: none !important;
 	}
 }

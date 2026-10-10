@@ -1,4 +1,5 @@
 import style from './style.module.css';
+import logo from '../../assets/imgs/logo.png';
 import { ExternalLink, Heart } from 'lucide-preact';
 
 const repository = 'https://github.com/watergis/terra-draw-cesium-adapter';
@@ -12,8 +13,9 @@ const links = [
 const Header = ({ route }: { route: string }) => (
 	<header class={style.header}>
 		<div class={style.nav}>
-			<a class={style.logo} href="#/" aria-label="Terra Draw Cesium Adapter">
-				Terra Draw <span class={style.logoAccent}>Cesium</span>
+			<a class={style.logoLink} href="#/" aria-label="Terra Draw Cesium Adapter">
+				<img class={style.logo} src={logo} alt="Terra Draw Logo" />
+				<span class={style.logoSuffix}>Cesium</span>
 			</a>
 			<nav>
 				{links.map(({ href, label }) => (

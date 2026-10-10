@@ -4,6 +4,7 @@
 	"entryPoints": ["../packages/terra-draw-cesium-adapter/src/terra-draw-cesium-adapter.ts"],
 	"tsconfig": "../packages/terra-draw-cesium-adapter/tsconfig.build.json",
 	"readme": "../packages/terra-draw-cesium-adapter/README.md",
+	"customCss": "typedoc.css",
 	"out": "dist/api",
 	"skipErrorChecking": true,
 	"sourceLinkExternal": true
