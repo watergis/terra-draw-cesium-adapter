@@ -17,7 +17,7 @@
 		"cesium": "1.144.0",
 		"flatgeobuf": "^4.0.0",
 		"lucide-preact": "^1.7.0",
-		"preact": "^10.29.7",
+		"preact": "^11.0.0",
 		"terra-draw": "1.37.0"
 	},
 	"devDependencies": {
