@@ -6,6 +6,7 @@ import {
 	TerraDrawPointMode,
 	TerraDrawPolygonMode,
 	TerraDrawCircleMode,
+	TerraDrawEllipseMode,
 	TerraDrawRectangleMode,
 	TerraDrawAngledRectangleMode,
 	TerraDrawSectorMode,
@@ -214,6 +215,26 @@ const PolygonWithLineSnapping: Story = {
 	...DefaultPlay
 };
 
+const PolygonWithDegreeSnapping: Story = {
+	args: {
+		id: 'polygon-degree-snapping',
+		...DefaultSize,
+		...LocationNewYork,
+		...DefaultZoom,
+		modes: [
+			() =>
+				new TerraDrawPolygonMode({
+					snapping: {
+						toDegree: {}
+					}
+				})
+		],
+		instructions:
+			'Draw a polygon to snap each segment, including its closing segment, to 90° intervals.'
+	},
+	...DefaultPlay
+};
+
 // Polygon with custom snapToFeature story
 const PolygonWithSnapToFeature: Story = {
 	args: {
@@ -325,6 +346,31 @@ const Circle: Story = {
 	}
 };
 
+// Ellipse drawing story
+const Ellipse: Story = {
+	...DefaultStory,
+	args: {
+		id: 'ellipse',
+		modes: [
+			() => new TerraDrawEllipseMode(),
+			() =>
+				new TerraDrawSelectMode({
+					flags: {
+						ellipse: {
+							feature: {
+								draggable: true,
+								coordinates: {
+									resizable: 'center'
+								}
+							}
+						}
+					}
+				})
+		],
+		...DefaultStory.args
+	}
+};
+
 // Circle drawing with click-drag interaction story
 const CircleWithClickDragInteraction: Story = {
 	...DefaultStory,
@@ -410,7 +456,7 @@ const Sector: Story = {
 	...DefaultStory,
 	args: {
 		id: 'sector',
-		modes: [() => new TerraDrawSectorMode()],
+		modes: [() => new TerraDrawSectorMode({ allowDirectionChange: false })],
 		...DefaultStory.args
 	}
 };
@@ -529,12 +575,39 @@ const LineStringWithLineSnapping: Story = {
 	}
 };
 
+const LineStringWithDegreeSnapping: Story = {
+	...DefaultStory,
+	args: {
+		id: 'linestring-degree-snapping',
+		modes: [
+			() =>
+				new TerraDrawLineStringMode({
+					snapping: {
+						toDegree: {}
+					}
+				})
+		],
+		instructions: 'Draw a line whose segments snap to 90° intervals.',
+		...DefaultStory.args
+	}
+};
+
 // Freehand linestring drawing story
 const FreehandLineString: Story = {
 	...DefaultStory,
 	args: {
 		id: 'freehand-linestring',
-		modes: [() => new TerraDrawFreehandLineStringMode()],
+		modes: [
+			() =>
+				new TerraDrawFreehandLineStringMode({
+					showCoordinatePoints: true,
+					drawInteraction: 'click-drag',
+					styles: {
+						coordinatePointWidth: 2,
+						coordinatePointOutlineOpacity: 0.5
+					}
+				})
+		],
 		...DefaultStory.args
 	}
 };
@@ -544,7 +617,17 @@ const Freehand: Story = {
 	...DefaultStory,
 	args: {
 		id: 'freehand',
-		modes: [() => new TerraDrawFreehandMode()],
+		modes: [
+			() =>
+				new TerraDrawFreehandMode({
+					showCoordinatePoints: true,
+					drawInteraction: 'click-drag',
+					styles: {
+						coordinatePointWidth: 2,
+						coordinatePointOutlineOpacity: 0.5
+					}
+				})
+		],
 		...DefaultStory.args
 	}
 };
@@ -580,12 +663,31 @@ const FreehandWithAutoClose: Story = {
 	}
 };
 
+const arcPoints = 64;
+
+const showSensorCorners = (feature: GeoJSONStoreFeatures) => {
+	const index = feature.properties.index as number;
+	const visibleIndexes = [0, arcPoints, arcPoints + 1, 2 * arcPoints + 1];
+
+	return visibleIndexes.includes(index) ? 1 : 0;
+};
+
 // Sensor drawing story
 const Sensor: Story = {
 	...DefaultStory,
 	args: {
 		id: 'sensor',
-		modes: [() => new TerraDrawSensorMode()],
+		modes: [
+			() =>
+				new TerraDrawSensorMode({
+					allowDirectionChange: true,
+					showCoordinatePoints: true,
+					styles: {
+						coordinatePointOpacity: showSensorCorners,
+						coordinatePointOutlineOpacity: showSensorCorners
+					}
+				})
+		],
 		...DefaultStory.args
 	}
 };
@@ -600,7 +702,8 @@ const Select: Story = {
 				new TerraDrawPolygonMode({
 					showCoordinatePoints: true,
 					styles: {
-						coordinatePointColor: '#ff0000'
+						coordinatePointColor: '#ff0000',
+						coordinatePointWidth: ({ properties }) => (properties.currentlyDrawing ? 5 : 0)
 					}
 				}),
 			() =>
@@ -1062,12 +1165,14 @@ const AllStories = {
 	PolygonWithCoordinatePoints,
 	PolygonWithCoordinateSnapping,
 	PolygonWithLineSnapping,
+	PolygonWithDegreeSnapping,
 	PolygonWithSnapToFeature,
 	PolygonWithEditableEnabled,
 	PolygonWithCoordinateCounts,
 	Styling,
 	ZIndexOrdering,
 	Circle,
+	Ellipse,
 	CircleWithClickDragInteraction,
 	CircleWithClickMoveOrDragInteraction,
 	Rectangle,
@@ -1082,6 +1187,7 @@ const AllStories = {
 	LineStringEditable,
 	LineStringWithCoordinateSnapping,
 	LineStringWithLineSnapping,
+	LineStringWithDegreeSnapping,
 	FreehandLineString,
 	Freehand,
 	FreehandWithAutoClose,
