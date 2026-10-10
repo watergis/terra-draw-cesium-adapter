@@ -1,10 +1,11 @@
 import {
 	TerraDrawLineStringMode,
+	TerraDrawMarkerMode,
 	TerraDrawPointMode,
 	TerraDrawPolygonMode,
 	TerraDrawSelectMode
 } from 'terra-draw';
-import { AllStories } from '../../common/stories';
+import { AllStories, DefaultStory } from '../../common/stories';
 import { DefaultMeta } from '../../common/meta';
 import { DefaultPlay, DefaultSize, LocationMountFuji, type Story } from '../../common/config';
 import { SetupCesium } from './setup';
@@ -68,6 +69,54 @@ export const ProgrammaticRotate = AllStories.ProgrammaticRotate;
 export const ProgrammaticScale = AllStories.ProgrammaticScale;
 export const ProgrammaticUpdate = AllStories.ProgrammaticUpdate;
 export const UndoRedo = AllStories.UndoRedo;
+
+const MARKER_ANCHORS = [
+	'top-left',
+	'top',
+	'top-right',
+	'left',
+	'center',
+	'right',
+	'bottom-left',
+	'bottom',
+	'bottom-right'
+] as const;
+
+/**
+ * The shared set does not cover marker anchors yet. Each button is a marker
+ * mode with a different anchor, so the same icon can be placed with every
+ * anchor and compared against the position that was clicked.
+ */
+export const MarkerAnchor: Story = {
+	...DefaultStory,
+	args: {
+		...DefaultStory.args,
+		id: 'marker-anchor',
+		instructions:
+			'Pick an anchor and click to place a marker - that part of the icon should land where it was clicked',
+		modes: MARKER_ANCHORS.map(
+			(markerAnchor) => () =>
+				new TerraDrawMarkerMode({
+					modeName: markerAnchor,
+					styles: {
+						markerUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
+						markerWidth: 25,
+						markerHeight: 60,
+						markerAnchor
+					}
+				})
+		)
+	},
+	render: (args) => {
+		const container = SetupCesium(args);
+		// One button per anchor does not fit on the single row the shared layout assumes
+		const controls = container.firstElementChild as HTMLElement;
+		controls.style.flexWrap = 'wrap';
+		controls.style.height = 'auto';
+		controls.style.width = args.width;
+		return container;
+	}
+};
 
 /**
  * Cesium is the only adapter with a tiltable camera and real terrain, so this

@@ -73,7 +73,7 @@ All other [`BaseAdapterConfig`](https://github.com/JamesLMilner/terra-draw) opti
 
 Features are rendered as Cesium entities in `viewer.entities`:
 
-- **Points** become `PointGraphics`, or `BillboardGraphics` when the mode supplies a `markerUrl`.
+- **Points** become `PointGraphics`, or `BillboardGraphics` when the mode supplies a `markerUrl`. The marker's `markerAnchor` sets the billboard's `horizontalOrigin` and `verticalOrigin`, and defaults to `bottom`.
 - **LineStrings** become ground-clamped polylines, using `PolylineDashMaterialProperty` when the style sets `lineStringDash`.
 - **Polygons** become ground polygons for the fill, plus one ground polyline per ring for the outline. Cesium does not support polygon outline widths greater than one pixel on most platforms, so drawing the outline separately is what makes `polygonOutlineWidth` work.
 

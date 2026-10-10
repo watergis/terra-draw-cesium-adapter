@@ -30,6 +30,7 @@ export type InjectableCesium = {
 	Math: typeof CesiumType.Math;
 	ScreenSpaceEventType: typeof CesiumType.ScreenSpaceEventType;
 	HeightReference: typeof CesiumType.HeightReference;
+	HorizontalOrigin: typeof CesiumType.HorizontalOrigin;
 	VerticalOrigin: typeof CesiumType.VerticalOrigin;
 };
 
@@ -62,6 +63,25 @@ type FeatureRender = {
  * but the type definitions only describe the Property that is read back out
  */
 const asProperty = (value: unknown) => value as never;
+
+/**
+ * The billboard origins that place each Terra Draw marker anchor on the point.
+ * The origins are named rather than resolved here because Cesium is injected.
+ */
+const markerAnchorOrigins: Record<
+	string,
+	[keyof typeof CesiumType.HorizontalOrigin, keyof typeof CesiumType.VerticalOrigin]
+> = {
+	'top-left': ['LEFT', 'TOP'],
+	top: ['CENTER', 'TOP'],
+	'top-right': ['RIGHT', 'TOP'],
+	left: ['LEFT', 'CENTER'],
+	center: ['CENTER', 'CENTER'],
+	right: ['RIGHT', 'CENTER'],
+	'bottom-left': ['LEFT', 'BOTTOM'],
+	bottom: ['CENTER', 'BOTTOM'],
+	'bottom-right': ['RIGHT', 'BOTTOM']
+};
 
 /**
  * How long a feature must go without an update before its geometry is put back
@@ -583,6 +603,9 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 					entity.billboard.image = asProperty(style.markerUrl);
 					entity.billboard.width = asProperty(style.markerWidth);
 					entity.billboard.height = asProperty(style.markerHeight);
+					const { horizontalOrigin, verticalOrigin } = this.markerOrigins(style);
+					entity.billboard.horizontalOrigin = asProperty(horizontalOrigin);
+					entity.billboard.verticalOrigin = asProperty(verticalOrigin);
 				}
 			} else if (entity?.point) {
 				entity.point.pixelSize = asProperty(style.pointWidth * 2);
@@ -627,6 +650,20 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 		return opacity === undefined ? color : color.withAlpha(opacity);
 	}
 
+	private markerOrigins(style: TerraDrawAdapterStyling): {
+		horizontalOrigin: CesiumType.HorizontalOrigin;
+		verticalOrigin: CesiumType.VerticalOrigin;
+	} {
+		// Backwards compatible read: older Terra Draw versions will not have this field in the interface
+		const markerAnchor = (style as { markerAnchor?: string }).markerAnchor;
+		const [horizontal, vertical] =
+			markerAnchorOrigins[markerAnchor ?? 'bottom'] ?? markerAnchorOrigins.bottom!;
+		return {
+			horizontalOrigin: this._lib.HorizontalOrigin[horizontal],
+			verticalOrigin: this._lib.VerticalOrigin[vertical]
+		};
+	}
+
 	private createPointEntity(
 		position: CesiumType.Cartesian3,
 		style: TerraDrawAdapterStyling
@@ -638,7 +675,7 @@ export class TerraDrawCesiumAdapter extends TerraDrawExtend.TerraDrawBaseAdapter
 					image: style.markerUrl,
 					width: style.markerWidth,
 					height: style.markerHeight,
-					verticalOrigin: this._lib.VerticalOrigin.BOTTOM,
+					...this.markerOrigins(style),
 					heightReference: this._lib.HeightReference.CLAMP_TO_GROUND,
 					disableDepthTestDistance: Number.POSITIVE_INFINITY
 				}
