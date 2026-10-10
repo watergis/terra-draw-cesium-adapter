@@ -4,9 +4,11 @@
 	"compatibility_date": "2026-08-19",
 	"workers_dev": true,
 	"preview_urls": true,
-	// Assets-only Worker: it serves the Storybook build output, so there is no `main` script.
+	// Assets-only Worker: it serves the website built by `pnpm docs:build`, which
+	// bundles the API docs under /api/ and Storybook under /storybook/, so there
+	// is no `main` script.
 	"assets": {
-		"directory": "./packages/storybook/storybook-static"
+		"directory": "./docs/dist"
 	},
 	"observability": {
 		"enabled": true

@@ -7,5 +7,5 @@
 	"access": "public",
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
-	"ignore": ["terra-draw-cesium-adapter-storybook"]
+	"ignore": ["terra-draw-cesium-adapter-storybook", "terra-draw-cesium-adapter-docs"]
 }

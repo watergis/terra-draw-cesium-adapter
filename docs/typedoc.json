@@ -1,0 +1,10 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"name": "@watergis/terra-draw-cesium-adapter",
+	"entryPoints": ["../packages/terra-draw-cesium-adapter/src/terra-draw-cesium-adapter.ts"],
+	"tsconfig": "../packages/terra-draw-cesium-adapter/tsconfig.build.json",
+	"readme": "../packages/terra-draw-cesium-adapter/README.md",
+	"out": "dist/api",
+	"skipErrorChecking": true,
+	"sourceLinkExternal": true
+}
