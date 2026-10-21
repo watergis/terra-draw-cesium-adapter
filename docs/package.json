@@ -18,7 +18,7 @@
 		"flatgeobuf": "^4.5.0",
 		"lucide-preact": "^1.53.0",
 		"preact": "^11.0.1",
-		"terra-draw": "1.37.0"
+		"terra-draw": "1.38.0"
 	},
 	"devDependencies": {
 		"@preact/preset-vite": "^2.10.6",
