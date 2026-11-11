@@ -221,8 +221,8 @@ importers:
         specifier: ^11.0.1
         version: 11.0.1
       terra-draw:
-        specifier: 1.37.0
-        version: 1.37.0
+        specifier: 1.39.0
+        version: 1.39.0
     devDependencies:
       '@preact/preset-vite':
         specifier: ^2.10.6
@@ -255,8 +255,8 @@ importers:
         specifier: 1.146.0
         version: 1.146.0
       terra-draw:
-        specifier: 1.37.0
-        version: 1.37.0
+        specifier: 1.39.0
+        version: 1.39.0
     devDependencies:
       '@storybook/addon-docs':
         specifier: ^10.6.1
@@ -301,8 +301,8 @@ importers:
         specifier: ^30.1.2
         version: 30.1.2
       terra-draw:
-        specifier: 1.37.0
-        version: 1.37.0
+        specifier: 1.39.0
+        version: 1.39.0
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -3219,8 +3219,8 @@ packages:
     resolution: {integrity: sha512-SS+jx45GF1QjgEXQx4NJZV9ImqmO2NPz5FNsIHrsDjh2YsHnawpan7SNQ1o8NuhrbHZy9AZhIoCUiCeaW/C80g==}
     engines: {node: '>=18'}
 
-  terra-draw@1.37.0:
-    resolution: {integrity: sha512-t8aGT6tZM+ZTygPg3nRG0/B/OtjiQfrjJauMB1MLyJTFvt4gDNSgk7InFIYzGc/zOwHICJEEDn8Hq+pKzC8mag==}
+  terra-draw@1.39.0:
+    resolution: {integrity: sha512-W9myUqAlxTQYydNM6cI1kmaU3/i9IlNUfzbfjr7sZVfE5YrJ1ogEpMTKKXdlXdON7tB/nMd3sPL26u7CAzCxKA==}
 
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
@@ -6370,7 +6370,7 @@ snapshots:
 
   supports-color@10.2.2: {}
 
-  terra-draw@1.37.0: {}
+  terra-draw@1.39.0: {}
 
   tiny-invariant@1.3.3: {}
 
